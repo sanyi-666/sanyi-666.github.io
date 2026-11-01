@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>在 Windows 上搭一套 Kali 与 Ubuntu 的实验环境 · 三易</title>
+<link rel="stylesheet" href="../assets/style.css">
+</head>
+<body>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="../index.html">三易</a>
+    <nav>
+      <a href="../index.html">首页</a>
+      <a href="../about.html">关于</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <a class="back" href="../index.html">← 返回首页</a>
+
+  <article class="post">
+
+    <h1>在 Windows 上搭一套 Kali 与 Ubuntu 的实验环境</h1>
+    <p class="meta">2026-10-25</p>
+
+    <p>课程要求有一个自己的 Linux 环境。虚拟机是最常见的做法，
+       但装 VirtualBox、下 ISO、分配内存，对一台日常还要用的笔记本来说有点重。
+       WSL2 是另一条路：Linux 以虚拟机的形式跑在 Windows 里，
+       但用起来就是一个终端窗口，文件互通、复制粘贴都正常。</p>
+
+    <h3>先确认版本</h3>
+
+    <pre><code>wsl -l -v
+#   NAME          STATE      VERSION
+# * Ubuntu        Stopped    2
+#   kali-linux    Stopped    2</code></pre>
+
+    <p>VERSION 那一列是 <code>2</code> 就对了。也可以在实例里看内核：
+       <code>uname -r</code> 带 <code>-microsoft-standard-WSL2</code> 就是 WSL2。</p>
+
+    <h3>装发行版，尽量别装到 C 盘</h3>
+
+    <p>默认安装会落在 C 盘的用户目录下，一个发行版动辄几百兆到几个 G。
+       装到别的盘用 <code>--location</code>：</p>
+
+    <pre><code>wsl --install kali-linux --location D:\wsl\kali-linux</code></pre>
+
+    <p>已经装好的也可以迁移，不用重装：</p>
+
+    <pre><code>wsl --manage Ubuntu --move D:\wsl\Ubuntu</code></pre>
+
+    <h3>如果在线清单拉不下来</h3>
+
+    <p><code>wsl --install</code> 需要先访问一份发行版清单。这份清单有时连不上，
+       报错类似 <code>WININET_E_CONNECTION_RESET</code>。这时候可以用本地镜像绕过去：</p>
+
+    <pre><code>wsl --install --from-file kali-linux.wsl --name kali-linux --location D:\wsl\kali-linux</code></pre>
+
+    <p>镜像从发行版官方站点下，装之前记得校验一下 SHA256。
+       这一步多做十秒，能省掉后面排查一小时的麻烦。</p>
+
+    <h3>装完先做三件事</h3>
+
+    <ol>
+      <li>建一个普通用户，别一直用 root；</li>
+      <li>把 apt 源换成国内镜像，装包会快很多；</li>
+      <li>确认 <code>systemctl</code> 能用（<code>ps -p 1 -o comm=</code> 应该输出 systemd）。</li>
+    </ol>
+
+    <pre><code>sudo apt update
+sudo apt install -y build-essential python3-pip default-jdk
+gcc --version; python3 --version; javac -version</code></pre>
+
+    <p>三条版本号都能打出来，环境就算齐了。
+       之后无论是写 C、跑 Python 还是练 Java，都不用再折腾安装。</p>
+
+  </article>
+
+</main>
+
+<footer class="site">
+  <div class="wrap">
+    © 2026 三易 · 由 GitHub Pages 托管
+  </div>
+</footer>
+
+</body>
+</html>
